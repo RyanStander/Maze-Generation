@@ -17,9 +17,23 @@ public class MazeGenerator : MonoBehaviour
     //2d array of maze blocks
     private MazeBlock[,] mazeBlocks;
 
+    PrimsMazeAlgorithm primsMazeAlgorithm;
+
     private void Start()
     {
         InitializeMaze();
+
+        primsMazeAlgorithm = new PrimsMazeAlgorithm(mazeBlocks);
+
+        primsMazeAlgorithm.CreateMaze();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            primsMazeAlgorithm.DoItAgain();
+        }   
     }
 
     /// <summary>
