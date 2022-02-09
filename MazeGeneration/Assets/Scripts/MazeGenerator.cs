@@ -32,6 +32,7 @@ public class MazeGenerator : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space))
         {
+            Debug.Log("Space pressed");
             primsMazeAlgorithm.DoItAgain();
         }   
     }
