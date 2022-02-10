@@ -24,17 +24,7 @@ public class MazeGenerator : MonoBehaviour
         InitializeMaze();
 
         primsMazeAlgorithm = new PrimsMazeAlgorithm(mazeBlocks);
-
         primsMazeAlgorithm.CreateMaze();
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            Debug.Log("Space pressed");
-            primsMazeAlgorithm.DoItAgain();
-        }   
     }
 
     /// <summary>

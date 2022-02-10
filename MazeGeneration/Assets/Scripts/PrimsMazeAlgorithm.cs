@@ -6,13 +6,9 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
     //The current row and column that is being checked
     private int currentRow=0, currentColumn = 0;
 
-    private bool hasCompletedCourse = false;
-
     public PrimsMazeAlgorithm(MazeBlock[,] mazeBlocks) : base(mazeBlocks)
     {
     }
-    private List<MazeBlock> visitedMazeBlocks = new List<MazeBlock>();
-    private List<MazeBlock> unvisitedMazeBlocks = new List<MazeBlock>();
     private List<MazeBlock> unvisitedAdjacentMazeBlocks = new List<MazeBlock>();
 
 
@@ -23,99 +19,27 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
     {
         //Set the first block as visited
         mazeBlocks[currentRow, currentColumn].hasBeenVisited = true;
-        //we add all to this list since none are visited
-        for (int r = 0; r < mazeRows; r++)
-        {
-            for (int c = 0; c < mazeColumns; c++)
-            {
-                unvisitedMazeBlocks.Add(mazeBlocks[r, c]);
-            }
-        }
-        unvisitedAdjacentMazeBlocks.AddRange(FindAjacentUnvisitedBlocks(currentRow,currentColumn));
-
-        unvisitedMazeBlocks.Remove(mazeBlocks[currentRow, currentColumn]);
-        visitedMazeBlocks.Add(mazeBlocks[currentRow, currentColumn]);
-
-        //While there are still maze blocks that have not been visited
-        //while (!hasCompletedCourse)
-        //{
-            CreateMazePathway();
-            StartNewPathwayLocation();
-        //}
-    }
-
-    public void DoItAgain()
-    {
-        //if (!hasCompletedCourse)
-        //{
-            //CreateMazePathway();
-            StartNewPathwayLocation();
-        //}
-    }
-
-    private void CreateMazePathway()
-    {
-        //while (StillRouteAvailable(currentRow,currentColumn))
-        //{
-        int direction = Random.Range(1, 5);
-
-        //If the direction is north and there is a cell available
-        if (direction == 1 && CellIsAvailable(currentRow - 1, currentColumn))
-        {
-            //We attempt to remove from multiple blocks as not all blocks contain walls to avoid having duplicates
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn].northWall);
-            DestroyWallIfItExists(mazeBlocks[currentRow - 1, currentColumn].southWall);
-            currentRow--;
-        }
-        //If the direction is south and there is a cell available
-        else if (direction == 2 && CellIsAvailable(currentRow + 1, currentColumn))
-        {
-            //We attempt to remove from multiple blocks as not all blocks contain walls to avoid having duplicates
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn].southWall);
-            DestroyWallIfItExists(mazeBlocks[currentRow + 1, currentColumn].northWall);
-            currentRow++;
-        }
-        //If the direction is east and there is a cell available
-        else if (direction == 3 && CellIsAvailable(currentRow, currentColumn + 1))
-        {
-            //We attempt to remove from multiple blocks as not all blocks contain walls to avoid having duplicates
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn].eastWall);
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn + 1].westWall);
-            currentColumn++;
-        }
-        //If the direction is west and there is a cell available
-        else if (direction == 4 && CellIsAvailable(currentRow, currentColumn - 1))
-        {
-            //We attempt to remove from multiple blocks as not all blocks contain walls to avoid having duplicates
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn].westWall);
-            DestroyWallIfItExists(mazeBlocks[currentRow, currentColumn - 1].eastWall);
-            currentColumn--;
-        }
-
-        mazeBlocks[currentRow, currentColumn].hasBeenVisited = true;
-        visitedMazeBlocks.Add(mazeBlocks[currentRow, currentColumn]);
-        unvisitedMazeBlocks.Remove(mazeBlocks[currentRow, currentColumn]);
-        Debug.Log("Removed object");
-        //}
+        //Find all adjacent blocks to the first block
+        unvisitedAdjacentMazeBlocks.AddRange(FindAjacentUnvisitedBlocks(currentRow, currentColumn));
+        
+        SetupMazeStructure();
     }
 
     /// <summary>
-    /// Once there is no unvisited paths to persue, start looking for unvisited cells that fit requirements
+    /// Finds all unvisited blocks and removes walls to connect to existing maze structure
     /// </summary>
-    private void StartNewPathwayLocation()
+    private void SetupMazeStructure()
     {
-        //Seeing that this was called due to lack of path, assume that all pathways are found unless proven otherwise by the below algorithm
-        hasCompletedCourse = true;
-
         //While there are still unvisited maze blocks
         while (unvisitedAdjacentMazeBlocks.Count>0)
         {
+            //Choose a random block from the list of unvisited maze blocks adjacent to the created maze
             int randomBlock = Random.Range(0, unvisitedAdjacentMazeBlocks.Count);
+            //Get the coordinates of the unvisited block in relation to the entire maze structure
             Vector2 coords = ExtensionMethods.CoordinatesOf(mazeBlocks, unvisitedAdjacentMazeBlocks[randomBlock]);
+            //Perform a check to ensure that the block being worked with has an adjacent block to it that has been visited
             if (HasAdjacentVisitedBlock((int)coords.x, (int)coords.y))
             {
-                //Since a block has been found that is suitable, set the course to not be complted
-                hasCompletedCourse = false;
                 //Set the applicable block as the one we are currently working with
                 currentRow = (int)coords.x;
                 currentColumn = (int)coords.y;
@@ -124,76 +48,48 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
                 //Set the block we just visited to be visited
                 mazeBlocks[currentRow, currentColumn].hasBeenVisited = true;
 
+                //Add adjacent unvisted blocks to the list of unvisitedAdjacentMazeBlocks
                 foreach (MazeBlock mazeBlock in FindAjacentUnvisitedBlocks(currentRow,currentColumn))
                 {
+                    //Make sure the list does not already contain the maze block, we dont want duplicates in the list
                     if (!unvisitedAdjacentMazeBlocks.Contains(mazeBlock))
                     {
+                        //Add it to the list if it matches the requirements
                         unvisitedAdjacentMazeBlocks.Add(mazeBlock);
                     }
                 }
-
-                visitedMazeBlocks.Add(unvisitedAdjacentMazeBlocks[randomBlock]);
-                unvisitedMazeBlocks.RemoveAt(randomBlock);
+                //Remove this block from the unvisited list
                 unvisitedAdjacentMazeBlocks.RemoveAt(randomBlock);
             } 
         }
     }
 
-    private bool StillRouteAvailable(int row, int column)
-    {
-        int availableRoutes = 0;
-
-        //if the row count is larger than 0 and the row before has been visited, increase available routes
-        if (row>0&&!mazeBlocks[row-1,column].hasBeenVisited)
-            availableRoutes++;
-
-        //if the current row count is larger than the total amount of rows and the row after has been visited, increase available routes
-        if (row < mazeRows - 1 && !mazeBlocks[row + 1, column].hasBeenVisited)
-            availableRoutes++;
-
-        //if the column count is larger than 0 and the column before has been visited, increase available routes
-        if (column > 0 && !mazeBlocks[row, column - 1].hasBeenVisited)
-            availableRoutes++;
-
-        //if the current column count is larger than the total amount of column and the column after has been visited, increase available routes
-        if (column < mazeColumns - 1 && !mazeBlocks[row, column + 1].hasBeenVisited)
-            availableRoutes++;
-
-        //return whether there is more than 0 available routes
-        return availableRoutes > 0;
-    }
-
     /// <summary>
-    /// Performs a check to ensure the cell being moved to is available
+    /// Checks if there are any blocks that have been visited adjacent to the checked block
     /// </summary>
-    private bool CellIsAvailable(int row, int column)
-    {
-        //make a check to ensure that the cell that is being moved to is available
-        if (row >= 0 && row < mazeRows && column >= 0 && column < mazeColumns && !mazeBlocks[row, column].hasBeenVisited)
-            return true;
-        else
-            return false;
-    }
-
     private bool HasAdjacentVisitedBlock(int row, int column)
     {
         int visitedBlocks = 0;
 
+        //If the block north of the one being checked has been visited and current block is not the top most row
         if (row>0 && mazeBlocks[row-1,column].hasBeenVisited)
         {
             visitedBlocks++;
         }
 
+        //If the block south of the one being checked has been visited and current block is not the bottom most row
         if (row < (mazeRows-2) && mazeBlocks[row + 1, column].hasBeenVisited)
         {
             visitedBlocks++;
         }
 
+        //If the block west of the one being checked has been visited and current block is not the left most row
         if (column > 0 && mazeBlocks[row, column-1].hasBeenVisited)
         {
             visitedBlocks++;
         }
 
+        //If the block east of the one being checked has been visited and current block is not the right most row
         if (column < (mazeColumns - 2) && mazeBlocks[row, column+1].hasBeenVisited)
         {
             visitedBlocks++;
@@ -204,6 +100,7 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
 
     private void DestroyWallIfItExists(GameObject wall)
     {
+        //Only destroy the wall if it is not null
         if (wall != null)
         {
             Object.Destroy(wall);
@@ -214,6 +111,7 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
     {
         bool hasDestroyedWall = false;
 
+        //Keep checking until a wall has been destroyed
         while (!hasDestroyedWall)
         {
             int direction = Random.Range(1, 5);
