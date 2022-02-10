@@ -8,6 +8,7 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
     private int currentRow=0, currentColumn = 0;
     private List<MazeBlock> unvisitedAdjacentMazeBlocks = new List<MazeBlock>();
     public PrimsMazeAlgorithm(MazeBlock[,] mazeBlocks) : base(mazeBlocks){}
+    //Unfortunately, time did not let me create a slow creation of this part of the algorithm due to my setup. With an extra day it might have been possible
 
     /// <summary>
     /// Creates a maze structure using Prim's algorithm

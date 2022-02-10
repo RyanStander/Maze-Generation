@@ -1,5 +1,3 @@
-using UnityEngine;
-
 public abstract class BaseMazeAlgorithm
 {
     //The 2d array of maze blocks

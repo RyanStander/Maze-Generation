@@ -26,6 +26,8 @@ public class MazeGenerator : MonoBehaviour
 
     private GameObject mazeStructureHolder;
 
+    private IEnumerator activeCouritine;
+
     private void Start()
     {
         //Create a game object to hold all the walls and floor
@@ -37,11 +39,13 @@ public class MazeGenerator : MonoBehaviour
 
     public void GenerateMaze()
     {
+        //Stop it from creating the previous maze if it was halted early
+        if (activeCouritine!=null)
+            StopCoroutine(activeCouritine);
+
         //Reset the maze structure holder
         foreach (Transform child in mazeStructureHolder.transform)
-        {
             Destroy(child.gameObject);
-        }
 
         InitializeMaze();
     }
@@ -53,17 +57,20 @@ public class MazeGenerator : MonoBehaviour
     {
         mazeBlocks = new MazeBlock[mazeRows, mazeColumns];
 
-
-        StartCoroutine(SetupMazeStructure());
+        activeCouritine = SetupMazeStructure();
+        StartCoroutine(activeCouritine);
     }
 
     private IEnumerator SetupMazeStructure()
     {
+        //Set these as to avoid messing with the for loops by changing values in runtime
+        int setMazeRows = mazeRows;
+        int setMazeColumns = mazeColumns;
         //Create a new row
-        for (int r = 0; r < mazeRows; r++)
+        for (int r = 0; r < setMazeRows; r++)
         {
             //Create a new column
-            for (int c = 0; c < mazeColumns; c++)
+            for (int c = 0; c < setMazeColumns; c++)
             {
                 yield return new WaitForSeconds(mazeStructureGenerationSpeed);
 
