@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,12 +6,8 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
 { 
     //The current row and column that is being checked
     private int currentRow=0, currentColumn = 0;
-
-    public PrimsMazeAlgorithm(MazeBlock[,] mazeBlocks) : base(mazeBlocks)
-    {
-    }
     private List<MazeBlock> unvisitedAdjacentMazeBlocks = new List<MazeBlock>();
-
+    public PrimsMazeAlgorithm(MazeBlock[,] mazeBlocks) : base(mazeBlocks){}
 
     /// <summary>
     /// Creates a maze structure using Prim's algorithm
@@ -21,7 +18,6 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
         mazeBlocks[currentRow, currentColumn].hasBeenVisited = true;
         //Find all adjacent blocks to the first block
         unvisitedAdjacentMazeBlocks.AddRange(FindAjacentUnvisitedBlocks(currentRow, currentColumn));
-        
         SetupMazeStructure();
     }
 
@@ -31,8 +27,9 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
     private void SetupMazeStructure()
     {
         //While there are still unvisited maze blocks
-        while (unvisitedAdjacentMazeBlocks.Count>0)
+        while (unvisitedAdjacentMazeBlocks.Count > 0)
         {
+
             //Choose a random block from the list of unvisited maze blocks adjacent to the created maze
             int randomBlock = Random.Range(0, unvisitedAdjacentMazeBlocks.Count);
             //Get the coordinates of the unvisited block in relation to the entire maze structure
@@ -49,7 +46,7 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
                 mazeBlocks[currentRow, currentColumn].hasBeenVisited = true;
 
                 //Add adjacent unvisted blocks to the list of unvisitedAdjacentMazeBlocks
-                foreach (MazeBlock mazeBlock in FindAjacentUnvisitedBlocks(currentRow,currentColumn))
+                foreach (MazeBlock mazeBlock in FindAjacentUnvisitedBlocks(currentRow, currentColumn))
                 {
                     //Make sure the list does not already contain the maze block, we dont want duplicates in the list
                     if (!unvisitedAdjacentMazeBlocks.Contains(mazeBlock))
@@ -60,7 +57,7 @@ public class PrimsMazeAlgorithm : BaseMazeAlgorithm
                 }
                 //Remove this block from the unvisited list
                 unvisitedAdjacentMazeBlocks.RemoveAt(randomBlock);
-            } 
+            }
         }
     }
 
